@@ -465,11 +465,11 @@ version = "0.33.21"
 
 [[StomataModels]]
 deps = ["ConstrainedRootSolvers", "DocStringExtensions", "EmeraldConstants", "Photosynthesis", "PkgUtility", "PlantHydraulics", "Test", "UnPack", "WaterPhysics"]
-git-tree-sha1 = "ad4637858d383faf3e318a9f4640aea53ffbeb1b"
+git-tree-sha1 = "bf48b7c3d8ba4b9b2487694be4d64ad7e56ad892"
 repo-rev = "clima_land_v0.1"
 repo-url = "https://github.com/Yujie-W/StomataModels.jl.git"
 uuid = "5fa394f2-99ce-4e3a-9704-be7b3526889d"
-version = "0.1.11"
+version = "0.1.12"
 
 [[TOML]]
 deps = ["Dates"]

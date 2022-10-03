@@ -186,6 +186,9 @@ function update_VJRWW!(node::SPACMono{FT}, vcmax::FT) where {FT<:AbstractFloat}
         _iPS.ps.Vcmax     = vcmax;
         _iPS.ps.Vcmax25   = vcmax;
         _iPS.ps.Vcmax25WW = vcmax;
+        _iPS.ps.Vpmax     = vcmax;
+        _iPS.ps.Vpmax25   = vcmax;
+        _iPS.ps.Vpmax25WW = vcmax;
         _iPS.ps.Jmax      = vcmax * 1.67;
         _iPS.ps.Jmax25    = vcmax * 1.67;
         _iPS.ps.Jmax25WW  = vcmax * 1.67;
