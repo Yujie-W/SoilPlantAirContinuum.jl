@@ -58,8 +58,8 @@ function initialize_spac_canopy!(
 
         update_leaf_TP!(photo_set, iPS, plant_hs.leaves[i_can], envirs[i_can]);
 
-        envirs[i_can].t_air = T_25(FT);
-        envirs[i_can].p_sat = saturation_vapor_pressure(T_25(FT));
+        envirs[i_can].t_air = T₂₅(FT);
+        envirs[i_can].p_sat = saturation_vapor_pressure(T₂₅(FT));
         envirs[i_can].p_H₂O = envirs[i_can].p_sat / 2;
     end
 
