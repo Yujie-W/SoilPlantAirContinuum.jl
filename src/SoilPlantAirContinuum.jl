@@ -21,7 +21,7 @@ using PlantHydraulics: AbstractPlantOrganism, GrassLikeOrganism,
       pressure_profile!, roots_flow!, soil_p_25_swc, soil_swc,
       temperature_effects!
 using StomataModels: AbstractStomatalModel, CanopyLayer, ESMBallBerry,
-      EmpiricalStomatalModel, GswDrive, gas_exchange!, gsw_control!,
+      EmpiricalStomatalModel, GswDrive, OptimizationStomatalModel, gas_exchange!, gsw_control!,
       prognostic_gsw!, stomatal_conductance, update_leaf_TP!
 using UnPack: @unpack
 using WaterPhysics: latent_heat_vapor, relative_diffusive_coefficient,

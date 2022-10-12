@@ -74,7 +74,7 @@ Base.@kwdef mutable struct SPACMono{FT<:AbstractFloat}
     "Photosynthesis parameter set"
     photo_set::AbstractPhotoModelParaSet{FT} = C3CLM(FT)
     "Stomatal behavior scheme"
-    stomata_model::AbstractStomatalModel{FT} = ESMBallBerry{FT}()
+    stomata_model::Union{EmpiricalStomatalModel{FT}, OptimizationStomatalModel{FT}} = ESMBallBerry{FT}()
 
     # For CanopyLayers module
     "Solar angle container"
