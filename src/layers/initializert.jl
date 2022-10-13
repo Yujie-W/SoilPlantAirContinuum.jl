@@ -321,3 +321,29 @@ function update_Weibull!(node::SPACMono{FT}, b::FT, c::FT) where {FT<:AbstractFl
 
     return nothing
 end
+
+
+"""
+    sync_par!(spac::SPACMono{FT}) where {FT<:AbstractFloat}
+
+Sync canopy layers PAR and sunlit fractions 
+"""
+function sync_par!(spac::SPACMono{FT}) where {FT<:AbstractFloat}
+    # calculate leaf level flux per canopy layer
+    _nSL = spac.canopy_rt.nAzi * spac.canopy_rt.nIncl;
+    for _i_can in 1:spac.n_canopy
+        _iPS = spac.plant_ps[_i_can];
+        _iRT = spac.n_canopy + 1 - _i_can;
+
+        # calculate the fraction of sunlit and shaded leaves
+        _f_view = (spac.can_opt.Ps[_iRT] + spac.can_opt.Ps[_iRT+1]) / 2;
+        for iLF in 1:_nSL
+            _iPS.APAR[iLF] = spac.can_rad.absPAR_sunCab[(_iRT-1)*_nSL+iLF] * FT(1e6);
+            _iPS.LAIx[iLF] = _f_view * spac.f_SL[iLF];
+        end;
+        _iPS.APAR[end] = spac.can_rad.absPAR_shadeCab[_iRT] * FT(1e6);
+        _iPS.LAIx[end] = 1 - _f_view;
+    end;
+
+    return nothing 
+end
