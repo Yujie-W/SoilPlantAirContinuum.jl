@@ -365,3 +365,19 @@ function sync_fqy!(spac::SPACMono{FT}) where {FT<:AbstractFloat}
 
     return nothing 
 end
+
+
+"""
+    update_par!(spac::SPACMono{FT}) where {FT<:AbstractFloat}
+
+Compute PAR and sync it to SPAC
+"""
+function update_par!(spac::SPACMono{FT}) where {FT<:AbstractFloat}
+    canopy_geometry!(spac.canopy_rt, spac.angles, spac.can_opt, spac.rt_con);
+    canopy_matrices!(spac.leaves_rt, spac.can_opt);
+    short_wave!(spac.canopy_rt, spac.can_opt, spac.can_rad, spac.in_rad, spac.soil_opt, spac.rt_con);
+    canopy_fluxes!(spac.canopy_rt, spac.can_opt, spac.can_rad, spac.in_rad, spac.soil_opt, spac.leaves_rt, spac.wl_set, spac.rt_con);
+    sync_par!(spac);
+
+    return nothing 
+end
