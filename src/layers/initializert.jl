@@ -347,3 +347,21 @@ function sync_par!(spac::SPACMono{FT}) where {FT<:AbstractFloat}
 
     return nothing 
 end
+
+
+"""
+    sync_fqy!(spac::SPACMono{FT}) where {FT<:AbstractFloat}
+
+Sync canopy layer fluorescence quantum yield
+"""
+function sync_fqy!(spac::SPACMono{FT}) where {FT<:AbstractFloat}
+    # update fluorescence quantum yield for all modes
+    for _i_can in 1:spac.n_canopy
+        _iRT = spac.n_canopy + 1 - _i_can;
+        _iPS = spac.plant_ps[_i_can];
+        spac.can_rad.ϕ_sun[:,:,_iRT] .= reshape(view(_iPS.φs,1:spac.canopy_rt.nIncl*spac.canopy_rt.nAzi), spac.canopy_rt.nIncl, spac.canopy_rt.nAzi);
+        spac.can_rad.ϕ_shade[_iRT] = (_iPS).φs[end];
+    end
+
+    return nothing 
+end
