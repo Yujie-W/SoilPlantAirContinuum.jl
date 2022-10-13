@@ -463,8 +463,8 @@ Prescribe soil moisture, given
 function prescribe_swc!(spac::SPACMono{FT}, args...) where {FT<:AbstractFloat}
     for _i in eachindex(spac.plant_hs.roots)
         _svc = spac.plant_hs.roots[_i].sh;
-        _swc = max(_svc.Θr + eps(FT), args[_i]);
-        spac.plant_hs.roots[_i].p_ups = soil_p_25_swc(_svc, _swc);
+        spac.swc[_i] = max(_svc.Θr + eps(FT), args[_i]);
+        spac.plant_hs.roots[_i].p_ups = soil_p_25_swc(_svc, spac.swc[_i]);
     end
 
     return nothing
