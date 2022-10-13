@@ -14,7 +14,7 @@ using DocStringExtensions: TYPEDFIELDS
 using EmeraldConstants: GAS_R, GRAVITY, K_STEFAN, K_VON_KARMAN, M_H₂O, P_ATM, RT₂₅, T₀, T₂₅, YEAR_D, ρ_H₂O
 using Photosynthesis: AbstractPhotoModelParaSet, AirLayer, C3CLM, GCO₂Mode,
       Leaf, leaf_photosynthesis!, leaf_rd!, leaf_temperature_dependence!
-using PkgUtility: tinfo
+using PkgUtility: numerical∫, tinfo
 using PlantHydraulics: AbstractPlantOrganism, GrassLikeOrganism,
       PalmLikeOrganism, SteadyStateMode, TreeLikeOrganism, TreeSimple,
       create_grass, critical_flow, end_pressure, flow_profile!,
@@ -70,6 +70,7 @@ include("bigleaf/varytrait.jl"     )
 
 include("layers/layer_fluxes.jl")
 include("layers/initializert.jl")
+include("layers/measures.jl"    )
 include("layers/test_diurnal.jl")
 include("layers/test_soil.jl"   )
 include("layers/windspeed.jl"   )
