@@ -11,8 +11,8 @@ using Photosynthesis: AbstractPhotoModelParaSet, AirLayer, C3CLM, GCO₂Mode, Le
 using PkgUtility: numerical∫, tinfo
 using PlantHydraulics: AbstractPlantOrganism, GrassLikeOrganism, PalmLikeOrganism, SteadyStateMode, TreeLikeOrganism, TreeSimple, create_grass, critical_flow, end_pressure, flow_profile!,
       pressure_profile!, roots_flow!, soil_p_25_swc, soil_swc, temperature_effects!
-using StomataModels: AbstractStomatalModel, BetaGLinearPsoil, CanopyLayer, ESMBallBerry, EmpiricalStomatalModel, GswDrive, OptimizationStomatalModel, gas_exchange!, gsw_control!, prognostic_gsw!,
-      stomatal_conductance, update_leaf_TP!, β_factor
+using StomataModels: AbstractStomatalModel, BetaGLinearPsoil, CanopyLayer, ESMBallBerry, ESMMedlyn, EmpiricalStomatalModel, GswDrive, OptimizationStomatalModel, gas_exchange!, gsw_control!,
+      prognostic_gsw!, stomatal_conductance, update_leaf_TP!, β_factor
 using UnPack: @unpack
 using WaterPhysics: latent_heat_vapor, relative_diffusive_coefficient, saturation_vapor_pressure
 

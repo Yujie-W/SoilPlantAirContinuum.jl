@@ -11,9 +11,8 @@ Update stomatal conductance, given
 - `τ` Time constant for prognostic stomtal conductance in `[s]`
 
 """
-function update_gsw!(spac::SPACMono{FT}, sm::EmpiricalStomatalModel{FT}, ind::Int, Δt::FT; β::FT = FT(1), τ::FT = FT(600)) where {FT<:AbstractFloat}
+function update_gsw!(spac::SPACMono{FT}, sm::ESMMedlyn{FT}, ind::Int, Δt::FT; β::FT = FT(1), τ::FT = FT(600)) where {FT<:AbstractFloat}
     # calculate steady state values
-    _gsw_ss::FT = 0;
     for _iLF in 1:spac.plant_ps[ind].n_leaf
         _gsw_ss = max(0, stomatal_conductance(sm, spac.plant_ps[ind], spac.envirs[ind], β, _iLF));
         spac.plant_ps[ind].g_sw[_iLF] += (_gsw_ss - spac.plant_ps[ind].g_sw[_iLF]) / τ * Δt;
