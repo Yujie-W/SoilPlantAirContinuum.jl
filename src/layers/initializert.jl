@@ -450,3 +450,22 @@ function prescribe_t_leaf!(spac::SPACMono{FT}, t_leaf::FT) where {FT<:AbstractFl
 
     return nothing
 end
+
+
+"""
+    prescribe_swc!(spac::SPACMono{FT}, args...) where {FT<:AbstractFloat}
+
+Prescribe soil moisture, given
+- `spac` SPAC
+- `args` A list of soil moisture (from 0 to Θs)
+
+"""
+function prescribe_swc!(spac::SPACMono{FT}, args...) where {FT<:AbstractFloat}
+    for _i in eachindex(spac.plant_hs.roots)
+        _svc = spac.plant_hs.roots[_i].sh;
+        _swc = max(_svc.Θr + eps(FT), args[_i]);
+        spac.plant_hs.roots[_i].p_ups = soil_p_25_swc(_svc, _swc);
+    end
+
+    return nothing
+end
