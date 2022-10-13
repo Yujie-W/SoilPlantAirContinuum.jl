@@ -9,18 +9,14 @@
 Initialize the RT parameters for a given
 - `node` [`SPACMono`](@ref) type struct
 """
-function initialize_spac_canopy!(
-            node::SPACMono{FT}
-) where {FT<:AbstractFloat}
+function initialize_spac_canopy!(node::SPACMono{FT}) where {FT<:AbstractFloat}
     # 0.1 create variables required
-    @unpack angles, envirs, in_rad, leaves_rt, n_canopy, plant_ps, photo_set,
-            rt_con, soil_opt, wl_set = node;
+    @unpack angles, envirs, in_rad, leaves_rt, n_canopy, plant_ps, photo_set, rt_con, soil_opt, wl_set = node;
     canopy_rt = node.canopy_rt;
     can_opt = node.can_opt;
     can_rad = node.can_rad;
     plant_hs = node.plant_hs;
-    fraction_sl::Array{FT,1} = repeat(canopy_rt.lidf, outer=[canopy_rt.nAzi]) /
-                               length(canopy_rt.lazitab);
+    fraction_sl::Array{FT,1} = repeat(canopy_rt.lidf, outer=[canopy_rt.nAzi]) / length(canopy_rt.lazitab);
     n_sl = length(canopy_rt.lidf) * length(canopy_rt.lazitab);
 
     # fluspect the canopy layers
@@ -31,14 +27,11 @@ function initialize_spac_canopy!(
     # Four Different steps to compute Short-Wave RT
     canopy_geometry!(canopy_rt, angles, can_opt, rt_con)
     canopy_matrices!(leaves_rt, can_opt);
-    short_wave!(canopy_rt, can_opt, can_rad, in_rad,
-                soil_opt, rt_con);
-    canopy_fluxes!(canopy_rt, can_opt, can_rad, in_rad,
-                   soil_opt, leaves_rt, wl_set, rt_con);
+    short_wave!(canopy_rt, can_opt, can_rad, in_rad, soil_opt, rt_con);
+    canopy_fluxes!(canopy_rt, can_opt, can_rad, in_rad, soil_opt, leaves_rt, wl_set, rt_con);
 
     # Compute Long Wave (Last term is LW incoming in W m^-2)
-    thermal_fluxes!(leaves_rt, can_opt, can_rad, canopy_rt,
-                    soil_opt, [FT(400.0)], wl_set);
+    thermal_fluxes!(leaves_rt, can_opt, can_rad, canopy_rt, soil_opt, [FT(400.0)], wl_set);
 
     # update the canopy leaf area partition information
     for i_can in 1:n_canopy
@@ -49,8 +42,7 @@ function initialize_spac_canopy!(
         f_view = (can_opt.Ps[rt_layer] + can_opt.Ps[rt_layer+1]) / 2;
 
         for iLF in 1:n_sl
-            iPS.APAR[iLF] = can_rad.absPAR_sunCab[(rt_layer-1)*n_sl + iLF] *
-                            FT(1e6);
+            iPS.APAR[iLF] = can_rad.absPAR_sunCab[(rt_layer-1)*n_sl + iLF] * FT(1e6);
             iPS.LAIx[iLF] = f_view * fraction_sl[iLF];
         end
         iPS.APAR[end] = can_rad.absPAR_shadeCab[rt_layer] * FT(1e6);
@@ -136,8 +128,7 @@ function update_Kmax!(node::SPACMono{FT}, kmax::FT) where {FT<:AbstractFloat}
     # 2. If is a tree
     if typeof(node.plant_hs) <: TreeLikeOrganism
         node.plant_hs.trunk.k_max      = 8 * kmax;
-        node.plant_hs.trunk.k_element .= node.plant_hs.trunk.k_max *
-                                         node.plant_hs.trunk.N;
+        node.plant_hs.trunk.k_element .= node.plant_hs.trunk.k_max * node.plant_hs.trunk.N;
         for stem in node.plant_hs.branch
             stem.k_max      = 8 * kmax / node.plant_hs.n_canopy;
             stem.k_element .= stem.k_max * stem.N;
@@ -151,8 +142,7 @@ function update_Kmax!(node::SPACMono{FT}, kmax::FT) where {FT<:AbstractFloat}
     # 3. If is a palm
     if typeof(node.plant_hs) <: PalmLikeOrganism
         node.plant_hs.trunk.k_max      = 4 * kmax;
-        node.plant_hs.trunk.k_element .= node.plant_hs.trunk.k_max *
-                                         node.plant_hs.trunk.N;
+        node.plant_hs.trunk.k_element .= node.plant_hs.trunk.k_max * node.plant_hs.trunk.N;
         for leaf in node.plant_hs.leaves
             leaf.k_sla      = 4 * kmax / node.la;
             leaf.k_element .= leaf.k_sla * leaf.N;
@@ -178,7 +168,7 @@ end
 
 Update Vcmax25(WW), Jmax25(WW), and Rd25(WW) from a given Vcmax25
 """
-function update_VJRWW!(node::SPACMono{FT}, vcmax::FT) where {FT<:AbstractFloat}
+function update_VJRWW!(node::SPACMono{FT}, vcmax::FT; expo::FT = FT(NaN)) where {FT<:AbstractFloat}
     # TODO change the ratio accordingly to photo_set
     # TODO add another ratio V2J in photo_set
     # Update Vcmax25, Jmax25 (1.67 Vcmax), and Rd25 (0.015 Vcmax)
@@ -197,6 +187,27 @@ function update_VJRWW!(node::SPACMono{FT}, vcmax::FT) where {FT<:AbstractFloat}
         _iPS.ps.Rd25WW    = vcmax * 0.015;
     end
 
+    if isnan(expo)
+        return nothing 
+    end;
+
+    # if expo is not NaN, add a exponential trend 
+    for _i_can in eachindex(node.plant_ps)
+        _x_rt = exp( -expo * node.canopy_rt.LAI * (1 - _i_can / node.n_canopy) );
+        node.plant_ps[_i_can].ps.Vcmax25WW *= _x_rt;
+        node.plant_ps[_i_can].ps.Vpmax25WW *= _x_rt;
+        node.plant_ps[_i_can].ps.Jmax25WW  *= _x_rt;
+        node.plant_ps[_i_can].ps.Rd25WW    *= _x_rt;
+        node.plant_ps[_i_can].ps.Vcmax25   *= _x_rt;
+        node.plant_ps[_i_can].ps.Vpmax25   *= _x_rt;
+        node.plant_ps[_i_can].ps.Jmax25    *= _x_rt;
+        node.plant_ps[_i_can].ps.Rd25      *= _x_rt;
+        node.plant_ps[_i_can].ps.Vcmax     *= _x_rt;
+        node.plant_ps[_i_can].ps.Vpmax     *= _x_rt;
+        node.plant_ps[_i_can].ps.Jmax      *= _x_rt;
+        node.plant_ps[_i_can].ps.Rd        *= _x_rt;
+    end;
+
     return nothing
 end
 
@@ -213,12 +224,12 @@ function update_VJR!(node::SPACMono{FT}, ratio::FT) where {FT<:AbstractFloat}
     # TODO add another ratio V2J in photo_set
     # Update Vcmax25, Jmax25 (1.67 Vcmax), and Rd25 (0.015 Vcmax)
     for _iPS in node.plant_ps
-        _iPS.ps.Vcmax   = _iPS.ps.Vcmax25WW * ratio;
-        _iPS.ps.Vcmax25 = _iPS.ps.Vcmax25WW * ratio;
-        _iPS.ps.Jmax    = _iPS.ps.Jmax25WW * ratio;
-        _iPS.ps.Jmax25  = _iPS.ps.Jmax25WW * ratio;
-        _iPS.ps.Rd      = _iPS.ps.Rd25WW * ratio;
-        _iPS.ps.Rd25    = _iPS.ps.Rd25WW * ratio;
+        _iPS.ps.Vcmax25 = ratio * _iPS.ps.Vcmax25WW;
+        _iPS.ps.Jmax25  = ratio * _iPS.ps.Jmax25WW;
+        _iPS.ps.Rd25    = ratio * _iPS.ps.Rd25WW;
+        _iPS.ps.Vcmax   = ratio * _iPS.ps.Vcmax25WW;
+        _iPS.ps.Jmax    = ratio * _iPS.ps.Jmax25WW;
+        _iPS.ps.Rd      = ratio * _iPS.ps.Rd25WW;
     end
 
     return nothing
@@ -230,11 +241,14 @@ end
 """
     update_Cab!(node::SPACMono{FT}, cab::FT) where {FT<:AbstractFloat}
 
-Update leaf chlorophyll content, and then rerun `fluspect!`
+Update leaf chlorophyll content, and then rerun `fluspect!`, given
+- `cab` chlorophyll content
+- `car` carotenoid content 
 """
-function update_Cab!(node::SPACMono{FT}, cab::FT) where {FT<:AbstractFloat}
+function update_Cab!(node::SPACMono{FT}, cab::FT; cab_2_car::FT = FT(1/7)) where {FT<:AbstractFloat}
     for _leaf in node.leaves_rt
         _leaf.Cab = cab;
+        _leaf.Cab = cab * cab_2_car;
         fluspect!(_leaf, node.wl_set);
     end
 
