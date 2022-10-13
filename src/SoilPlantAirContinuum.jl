@@ -7,7 +7,7 @@ using ConstrainedRootSolvers: ReduceStepMethodND, SolutionToleranceND, find_peak
 using DataFrames: DataFrame
 using DocStringExtensions: TYPEDFIELDS
 using EmeraldConstants: GAS_R, GRAVITY, K_STEFAN, K_VON_KARMAN, M_H₂O, P_ATM, RT₂₅, T₀, T₂₅, YEAR_D, ρ_H₂O
-using Photosynthesis: AirLayer, C3CLM, C3ParaSet, C4ParaSet, GCO₂Mode, Leaf, leaf_photosynthesis!, leaf_rd!, leaf_temperature_dependence!
+using Photosynthesis: AbstractPhotoModelParaSet, AirLayer, C3CLM, C3ParaSet, C4ParaSet, GCO₂Mode, Leaf, leaf_photosynthesis!, leaf_rd!, leaf_temperature_dependence!
 using PkgUtility: numerical∫, tinfo
 using PlantHydraulics: GrassLikeOrganism, PalmLikeOrganism, SteadyStateMode, TreeLikeOrganism, TreeSimple, create_grass, critical_flow, end_pressure, flow_profile!,
       pressure_profile!, roots_flow!, soil_p_25_swc, soil_swc, temperature_effects!
