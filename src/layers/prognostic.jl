@@ -11,7 +11,7 @@ Update stomatal conductance, given
 - `τ` Time constant for prognostic stomtal conductance in `[s]`
 
 """
-function update_gsw!(spac::SPACMono{FT}, sm::EmpiricalStomatalModel{FT}, ind::Int, Δt::FT; β::FT = FT(1), τ::FT = FT(600)) where {FT<:AbstractFloat}
+function update_gsw!(spac::SPACMono{FT}, sm::ESMMedlyn{FT}, ind::Int, Δt::FT; β::FT = FT(1), τ::FT = FT(600)) where {FT<:AbstractFloat}
     # calculate steady state values
     for _iLF in 1:spac.plant_ps[ind].n_leaf
         _gsw_ss = max(0, stomatal_conductance(sm, spac.plant_ps[ind], spac.envirs[ind], β, _iLF));
@@ -22,14 +22,6 @@ function update_gsw!(spac::SPACMono{FT}, sm::EmpiricalStomatalModel{FT}, ind::In
         spac.plant_ps[ind].g_sc[_iLF] = spac.plant_ps[ind].g_sw[_iLF] / FT(1.6);
         spac.plant_ps[ind].g_lc[_iLF] = 1 / ( 1/spac.plant_ps[ind].g_sc[_iLF] + 1/spac.plant_ps[ind].g_m[_iLF] + 1/spac.plant_ps[ind].g_bc[_iLF] );
     end;
-
-    return nothing
-end
-
-
-function update_gsw!(spac::SPACMono{FT}, sm::OptimizationStomatalModel{FT}, ind::Int, Δt::FT; β::FT = FT(1), τ::FT = FT(600)) where {FT<:AbstractFloat}
-    # calculate steady state values
-    @warn "This is a place holder function to verify my guess on memory allocation."
 
     return nothing
 end
