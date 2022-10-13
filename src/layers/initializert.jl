@@ -188,10 +188,10 @@ function update_VJRWW!(node::SPACMono{FT}, vcmax::FT; expo::FT = FT(NaN)) where 
     end
 
     if isnan(expo)
-        return nothing 
+        return nothing
     end;
 
-    # if expo is not NaN, add a exponential trend 
+    # if expo is not NaN, add a exponential trend
     for _i_can in eachindex(node.plant_ps)
         _x_rt = exp( -expo * node.canopy_rt.LAI * (1 - _i_can / node.n_canopy) );
         node.plant_ps[_i_can].ps.Vcmax25WW *= _x_rt;
@@ -243,7 +243,7 @@ end
 
 Update leaf chlorophyll content, and then rerun `fluspect!`, given
 - `cab` chlorophyll content
-- `car` carotenoid content 
+- `car` carotenoid content
 """
 function update_Cab!(node::SPACMono{FT}, cab::FT; cab_2_car::FT = FT(1/7)) where {FT<:AbstractFloat}
     for _leaf in node.leaves_rt
@@ -326,7 +326,7 @@ end
 """
     sync_par!(spac::SPACMono{FT}) where {FT<:AbstractFloat}
 
-Sync canopy layers PAR and sunlit fractions 
+Sync canopy layers PAR and sunlit fractions
 """
 function sync_par!(spac::SPACMono{FT}) where {FT<:AbstractFloat}
     # calculate leaf level flux per canopy layer
@@ -345,7 +345,7 @@ function sync_par!(spac::SPACMono{FT}) where {FT<:AbstractFloat}
         _iPS.LAIx[end] = 1 - _f_view;
     end;
 
-    return nothing 
+    return nothing
 end
 
 
@@ -363,7 +363,7 @@ function sync_fqy!(spac::SPACMono{FT}) where {FT<:AbstractFloat}
         spac.can_rad.ϕ_shade[_iRT] = (_iPS).φs[end];
     end
 
-    return nothing 
+    return nothing
 end
 
 
@@ -379,5 +379,18 @@ function update_par!(spac::SPACMono{FT}) where {FT<:AbstractFloat}
     canopy_fluxes!(spac.canopy_rt, spac.can_opt, spac.can_rad, spac.in_rad, spac.soil_opt, spac.leaves_rt, spac.wl_set, spac.rt_con);
     sync_par!(spac);
 
-    return nothing 
+    return nothing
+end
+
+
+"""
+    update_sif!(spac::SPACMono{FT}) where {FT<:AbstractFloat}
+
+Compute SIF and sync it to SPAC
+"""
+function update_sif!(spac::SPACMono{FT}) where {FT<:AbstractFloat}
+    sync_fqy!(spac);
+    SIF_fluxes!(spac.leaves_rt, spac.can_opt, spac.can_rad, spac.canopy_rt, spac.soil_opt, spac.wl_set, spac.rt_con, spac.rt_dim);
+
+    return nothing
 end
