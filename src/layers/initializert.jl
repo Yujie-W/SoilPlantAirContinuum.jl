@@ -394,3 +394,59 @@ function update_sif!(spac::SPACMono{FT}) where {FT<:AbstractFloat}
 
     return nothing
 end
+
+
+"""
+    prescribe_air!(spac::SPACMono{FT}, co2::FT, p_atm::FT, t_air::FT, vpd::FT, wind::FT) where {FT<:AbstractFloat}
+
+Prescribe environmental conditions, given
+- `spac` SPAC
+- `co2` CO2 in `[ppm]`
+- `p_atm` Atmospheric pressure in `[Pa]`
+- `t_air` Air temperature in `[K]`
+- `vpd` Atmospheric vapor pressure deficit
+- `wind` Wind speed in `[m s⁻¹]`
+
+"""
+function prescribe_air!(spac::SPACMono{FT}, co2::FT, p_atm::FT, t_air::FT, vpd::FT, wind::FT) where {FT<:AbstractFloat}
+    for _i_can in 1:spac.n_canopy
+        _iEN = spac.envirs[_i_can];
+
+        # update environmental conditions
+        _iEN.t_air = t_air;
+        _iEN.p_atm = p_atm;
+        _iEN.p_a   = _iEN.p_atm * co2 * 1e-6;
+        _iEN.p_O₂  = _iEN.p_atm * 0.209;
+        _iEN.p_sat = saturation_vapor_pressure(_iEN.t_air);
+        _iEN.vpd   = vpd;
+        _iEN.p_H₂O = _iEN.p_sat - _iEN.vpd;
+        _iEN.RH    = _iEN.p_H₂O / _iEN.p_sat;
+        _iEN.wind  = wind;
+    end;
+
+    return nothing
+end
+
+
+"""
+    prescribe_t_leaf!(spac::SPACMono{FT}, t_leaf::FT) where {FT<:AbstractFloat}
+
+Prescribe leaf temperature, given
+- `spac` SPAC
+- `t_leaf` Leaf temperature in `[K]`
+
+"""
+function prescribe_t_leaf!(spac::SPACMono{FT}, t_leaf::FT) where {FT<:AbstractFloat}
+    for _i_can in 1:spac.n_canopy
+        _iEN = spac.envirs[_i_can];
+        _iHS = spac.plant_hs.leaves[_i_can];
+        _iPS = spac.plant_ps[_i_can];
+
+        # prescribe leaf temperature
+        _iPS.T = t_leaf;
+        update_leaf_TP!(spac.photo_set, _iPS, _iHS, _iEN);
+        temperature_effects!(_iHS, _iPS.T);
+    end;
+
+    return nothing
+end
