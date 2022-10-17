@@ -248,7 +248,7 @@ Update leaf chlorophyll content, and then rerun `fluspect!`, given
 function update_Cab!(node::SPACMono{FT}, cab::FT; cab_2_car::FT = FT(1/7)) where {FT<:AbstractFloat}
     for _leaf in node.leaves_rt
         _leaf.Cab = cab;
-        _leaf.Cab = cab * cab_2_car;
+        _leaf.Car = cab * cab_2_car;
         fluspect!(_leaf, node.wl_set);
     end
 
